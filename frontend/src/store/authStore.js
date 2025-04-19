@@ -40,6 +40,23 @@ export const useAuthStore = create((set) => ({
     }
   },
 
+  login: async(data)=>{
+    try {
+      set({isLoggingIn:true})
+      const res  = await AXIOS.post("/auth/login",data);
+      if(res.status !==200){
+        throw new Error(res.error);
+      }
+      set({authUser:res.data});
+      toast.success("Logged in successfully!")
+    } catch (error) {
+      console.log(error.message)
+      toast.error(error?.data?.message || "Something went wrong!")
+    }finally{
+      set({isLoggingIn:false})
+    }
+  },
+
   logOut : async () => {
     try {
         const res = await AXIOS.post("/auth/logout");
