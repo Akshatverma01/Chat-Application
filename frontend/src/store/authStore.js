@@ -1,13 +1,12 @@
 import { create } from "zustand";
-import { AXIOS } from "../lib/axios";
+import  AXIOS  from "../lib/axios";
 import toast from "react-hot-toast";
 
 export const useAuthStore = create((set) => ({
   authUser: null,
   isSigningUp: false,
   isLoggingIn: false,
-  isUpdatingprofile: false,
-
+  isUpdatingProfile: false,
   isCheckingAuth: true,
 
   checkAuth: async () => {
@@ -66,7 +65,22 @@ export const useAuthStore = create((set) => ({
         set({authUser:null})
         toast.success("Logged out sucessfully!")
     } catch (error) {
-        toast.error("Something went wrong!")
+        toast.error(error?.data?.message ||"Something went wrong!")
+    }
+  },
+  updateProfile:async(image)=>{
+    set({isUpdatingProfile:true})
+    try {
+          const res = await AXIOS.put("/auth/update-profile", image)
+          if(res.status!==200){
+            throw new Error(res.error);
+          }
+          set({authUser:res.data})
+          toast.success("profile Updated sucessfully!")
+    } catch (error) {
+      toast.error(error?.data?.message ||"Something went wrong!")
+    }finally{
+      set({isUpdatingProfile:false})
     }
   }
 }));

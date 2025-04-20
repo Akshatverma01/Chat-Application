@@ -3,9 +3,8 @@ import bcrypt from "bcryptjs";
 import ApiError from "../utils/apiError.js";
 import User from "../models/user.model.js";
 import { generateToken } from "../utils/GenerateToken.js";
-import cloudinary from "../lib/cloudinary.js";
-
-
+import { uploadFileOnCloudinary } from "../lib/cloudinary.js";
+import fs from "fs";
 
 export const signUp = async (req, res) => {
   const { fullName, email, password } = req.body;
@@ -102,41 +101,68 @@ export const login = async (req, res) => {
 
 export const logout = (req, res) => {
   try {
-
     res.cookie("accessToken", "", { maxAge: 0 });
     res.status(200).json({ message: "Logged out successfully!" });
-
   } catch (error) {
-
     return res.status(500).json({
       message: error.message || "Internal Server Error",
     });
-
   }
 };
 
-export const updateProfile=async(req,res)=>{
+export const updateProfile = async (req, res) => {
   try {
-    console.log(req.user, req.body,"user")
-    const {profilePic }  = req.body;
-    const userId = req.user._id;
+    // const {profilePic }  = req.body;
+    const profilePic = req?.file?.path;
+    const userId = req?.user?._id;
 
-    if(!profilePic){
-      throw new ApiError(400, "Please provide profile picture");
+    console.log(req, "rqqqqqqqqqqqqqqqqqqqqq");
+
+    console.log(profilePic, "pic");
+
+    if (!profilePic) {
+      // throw new ApiError(400, "Please provide profile picture");
+      return res
+        .status(400)
+        .json({ message: "Please provide profile picture" });
     }
-    const updatedResponse =  await cloudinary.uploader.upload(profilePic);
-    const updatedUser = await User.findByIdAndUpdate(userId, {profilePic:updatedResponse},{new:true})
-    
-    return res.status(200).json({ data: updatedUser, message: "Profile updated successfully" });
-  } catch (error) {
-      return new ApiError(500, error.message||"Something went wrong!");  
-  }
-}
+    let updatedResponse;
+    try {
+      updatedResponse = await uploadFileOnCloudinary(profilePic);
+    } catch (error) {
+      return res
+        .status(500)
+        .json({ message: "Failed to upload the profile picture" });
+    }
 
-export const checkUserAuth = (req,res)=>{
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: { profilePic: updatedResponse?.url } },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    fs.unlink(profilePic, (err) => {
+      if (err) console.error("Failed to delete local file:", err);
+    });
+    return res
+      .status(200)
+      .json({ data: updatedUser, message: "Profile updated successfully" });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || "Something went wrong!",
+    });
+  }
+};
+
+export const checkUserAuth = (req, res) => {
   try {
     res.status(200).json(req.user);
   } catch (error) {
-    return res.status(500).json({message:error.message || "Internal Server Error"})
+    return res
+      .status(500)
+      .json({ message: error.message || "Internal Server Error" });
   }
-} 
+};

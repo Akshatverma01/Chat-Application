@@ -1,6 +1,6 @@
 import User from "../models/user.model.js";
 import {Message} from "../models/message.models.js";
-import cloudinary from "../lib/cloudinary.js";
+import {uploadFileOnCloudinary} from "../lib/cloudinary.js";
 
 export const getUserForSidebar = async (req, res) => {
   try {
@@ -41,10 +41,17 @@ export const createMessage = async (req, res) => {
     const myId = req.user._id;
     let imageUrl;
 
-    if (image) {
-      const uploadResponse = await cloudinary.uploader.upload(image);
+    // if (image) {
+    //   const uploadResponse = await uploadFileOnCloudinary(image);
 
-      imageUrl = uploadResponse;
+    //   imageUrl = uploadResponse;
+    // }
+    try {
+      imageUrl = await uploadFileOnCloudinary(image);
+    } catch (error) {
+      return res
+        .status(500)
+        .json({ message: "Failed to upload the profile picture" });
     }
 
     const newMessage = await Message.create({

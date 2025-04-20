@@ -26,9 +26,6 @@ function App() {
       <Loader className='size-10 animate-spin'/>
     </div>
   )
-
-  console.log({authUser})
-  
   return (
     <>
          <div data-theme={theme}>
