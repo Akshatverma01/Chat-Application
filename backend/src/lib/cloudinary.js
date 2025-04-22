@@ -13,17 +13,14 @@ cloudinary.config({
 const uploadFileOnCloudinary = async (filePath) => {
   try {
     if (!filePath) {
-    //   throw new Error("File path is required.");
       return null;
     }
-
     const response = await cloudinary.uploader
       .upload(filePath)
       .catch((err) => {
         throw err;
       });
 
-    //  fs.unlinkSync(filePath);
     return response;
   } catch (error) {
     fs.unlinkSync(filePath);

@@ -7,7 +7,6 @@ import { useAuthStore } from "../store/authStore.js";
 function ProfilePage() {
   const { authUser, isUpdatingProfile, updateProfile, checkAuth } =
     useAuthStore();
-  const [selectedImg, setSelectedImg] = useState(null);
 
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];

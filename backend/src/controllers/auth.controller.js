@@ -116,10 +116,6 @@ export const updateProfile = async (req, res) => {
     const profilePic = req?.file?.path;
     const userId = req?.user?._id;
 
-    console.log(req, "rqqqqqqqqqqqqqqqqqqqqq");
-
-    console.log(profilePic, "pic");
-
     if (!profilePic) {
       // throw new ApiError(400, "Please provide profile picture");
       return res

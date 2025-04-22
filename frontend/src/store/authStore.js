@@ -1,6 +1,7 @@
 import { create } from "zustand";
-import  AXIOS  from "../lib/axios";
+import AXIOS from "../lib/axios";
 import toast from "react-hot-toast";
+import { Navigate } from "react-router-dom";
 
 export const useAuthStore = create((set) => ({
   authUser: null,
@@ -22,65 +23,65 @@ export const useAuthStore = create((set) => ({
   },
 
   signUp: async (data) => {
-    set({isSigningUp:true})
+    set({ isSigningUp: true });
     try {
       const res = await AXIOS.post("/auth/signup", data);
-      if(res.status !==201){
+      if (res.status !== 201) {
         throw new Error(res.error);
       }
-      console.log(res,"res")
-      set({authUser: res.data})
-      toast.success("Account created successfully!")
+      console.log(res, "res");
+      set({ authUser: res.data });
+      toast.success("Account created successfully!");
     } catch (error) {
-        console.error(error);
-        toast.error(error?.data?.message || "Something went wrong!")
-    }finally{
-        set({isSigningUp:false})
+      console.error(error);
+      toast.error(error?.data?.message || "Something went wrong!");
+    } finally {
+      set({ isSigningUp: false });
     }
   },
 
-  login: async(data)=>{
+  login: async (data) => {
     try {
-      set({isLoggingIn:true})
-      const res  = await AXIOS.post("/auth/login",data);
-      if(res.status !==200){
+      set({ isLoggingIn: true });
+      const res = await AXIOS.post("/auth/login", data);
+      if (res.status !== 200) {
         throw new Error(res.error);
       }
-      set({authUser:res.data});
-      toast.success("Logged in successfully!")
+      set({ authUser: res.data });
+      toast.success("Logged in successfully!");
     } catch (error) {
-      console.log(error.message)
-      toast.error(error?.data?.message || "Something went wrong!")
-    }finally{
-      set({isLoggingIn:false})
+      console.log(error.message);
+      toast.error(error?.data?.message || "Something went wrong!");
+    } finally {
+      set({ isLoggingIn: false });
     }
   },
 
-  logOut : async () => {
+  logOut: async () => {
     try {
-        const res = await AXIOS.post("/auth/logout");
-        if(res.status!==200){
-            throw new Error(res.error);
-        }
-        set({authUser:null})
-        toast.success("Logged out sucessfully!")
+      const res = await AXIOS.post("/auth/logout");
+      if (res.status !== 200) {
+        throw new Error(res.error);
+      }
+      set({ authUser: null });
+      toast.success("Logged out sucessfully!");
     } catch (error) {
-        toast.error(error?.data?.message ||"Something went wrong!")
+      toast.error(error?.data?.message || "Something went wrong!");
     }
   },
-  updateProfile:async(image)=>{
-    set({isUpdatingProfile:true})
+  updateProfile: async (image) => {
+    set({ isUpdatingProfile: true });
     try {
-          const res = await AXIOS.put("/auth/update-profile", image)
-          if(res.status!==200){
-            throw new Error(res.error);
-          }
-          set({authUser:res.data})
-          toast.success("profile Updated sucessfully!")
+      const res = await AXIOS.put("/auth/update-profile", image);
+      if (res.status !== 200) {
+        throw new Error(res.error);
+      }
+      set({ authUser: res.data });
+      toast.success("profile Updated sucessfully!");
     } catch (error) {
-      toast.error(error?.data?.message ||"Something went wrong!")
-    }finally{
-      set({isUpdatingProfile:false})
+      toast.error(error?.data?.message || "Something went wrong!");
+    } finally {
+      set({ isUpdatingProfile: false });
     }
-  }
+  },
 }));
