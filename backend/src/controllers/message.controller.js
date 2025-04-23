@@ -1,6 +1,8 @@
 import User from "../models/user.model.js";
-import {Message} from "../models/message.models.js";
-import {uploadFileOnCloudinary} from "../lib/cloudinary.js";
+import { Message } from "../models/message.models.js";
+import { uploadFileOnCloudinary } from "../lib/cloudinary.js";
+import mongoose from "mongoose";
+import fs from "fs"
 
 export const getUserForSidebar = async (req, res) => {
   try {
@@ -15,40 +17,44 @@ export const getUserForSidebar = async (req, res) => {
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
-
 export const getMessages = async (req, res) => {
   try {
     const { id: userToChatId } = req.params;
     const myId = req.user._id;
 
+    console.log("Requesting messages between:");
+    console.log("myId:", myId);
+    console.log("userToChatId:", userToChatId);
+
+    const { ObjectId } = mongoose.Types;
+
     const messages = await Message.find({
       $or: [
         { senderId: myId, receiverId: userToChatId },
-        { senderId: userToChatId, receiverId: myId },
+        // { senderId: new ObjectId(userToChatId), receiverId: myId },
       ],
     });
 
+    console.log("Found messages:", messages);
+
     return res.status(200).json(messages);
   } catch (error) {
+    console.error("Error in getMessages:", error);
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
-
 export const createMessage = async (req, res) => {
   try {
-    const { text, image } = req.body;
+    const { text } = req.body;
     const { id: receiverId } = req.params;
     const myId = req.user._id;
-    let imageUrl;
+    let imageUrl = req?.file?.path;
 
-    // if (image) {
-    //   const uploadResponse = await uploadFileOnCloudinary(image);
-
-    //   imageUrl = uploadResponse;
-    // }
+    let responseUrl;
     try {
-      imageUrl = await uploadFileOnCloudinary(image);
+      responseUrl = await uploadFileOnCloudinary(imageUrl);
     } catch (error) {
+      console.log(error.message);
       return res
         .status(500)
         .json({ message: "Failed to upload the profile picture" });
@@ -58,13 +64,21 @@ export const createMessage = async (req, res) => {
       senderId: myId,
       receiverId,
       text,
-      image: imageUrl,
+      image: responseUrl?.secure_url || responseUrl?.url ||"",
     });
+    if (imageUrl) {
+      fs.unlink(imageUrl, (err) => {
+        if (err) console.error("Failed to delete local file:", err);
+      });
+    }
 
 
     return res.status(201).json(newMessage);
-    
   } catch (error) {
-    return res.status(500).json({ message:error.message || "Internal Server Error" });
+    console.log(error.message);
+    return res
+      .status(500)
+      .json({ message: error.message || "Internal Server Error" });
   }
 };
+

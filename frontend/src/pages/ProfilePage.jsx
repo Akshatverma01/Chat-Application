@@ -23,8 +23,6 @@ function ProfilePage() {
     }
   };
 
-  console.log(isUpdatingProfile,"isUpdatingProfile")
-  
   return (
     <div className="h-screen pt-20 relative">
       <div className="max-w-2xl mx-auto p-4 py-8">
