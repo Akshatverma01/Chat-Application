@@ -4,7 +4,6 @@ import ApiError from "./apiError.js";
 
 export const generateToken = async (userId, res) => {
   try {
-    console.log(res,"res")
     if (!process.env.SECRET_KEY) {
       throw new ApiError(500, "SECRET_KEY is not defined in environment variables");
     }

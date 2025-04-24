@@ -9,6 +9,7 @@ function Navbar() {
   const handleLogout = () => {
     try {
         logOut();
+        !authUser && <Navigate to="/login" />
     } catch (error) {
       console.log(error);
     }
@@ -56,7 +57,7 @@ function Navbar() {
               </button>
             </>
           )}
-          {!authUser && <Navigate to="/login" />}
+          {/* {!authUser && <Navigate to="/login" />} */}
         </div>
       </div>
     </header>

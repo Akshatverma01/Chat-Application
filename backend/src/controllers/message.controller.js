@@ -3,6 +3,7 @@ import { Message } from "../models/message.models.js";
 import { uploadFileOnCloudinary } from "../lib/cloudinary.js";
 import mongoose from "mongoose";
 import fs from "fs"
+import { getReceiverSocketId, io } from "../utils/socket.js";
 
 export const getUserForSidebar = async (req, res) => {
   try {
@@ -21,21 +22,14 @@ export const getMessages = async (req, res) => {
   try {
     const { id: userToChatId } = req.params;
     const myId = req.user._id;
-
-    console.log("Requesting messages between:");
-    console.log("myId:", myId);
-    console.log("userToChatId:", userToChatId);
-
     const { ObjectId } = mongoose.Types;
 
     const messages = await Message.find({
       $or: [
         { senderId: myId, receiverId: userToChatId },
-        // { senderId: new ObjectId(userToChatId), receiverId: myId },
+        { senderId: new ObjectId(userToChatId), receiverId: myId },
       ],
     });
-
-    console.log("Found messages:", messages);
 
     return res.status(200).json(messages);
   } catch (error) {
@@ -71,7 +65,10 @@ export const createMessage = async (req, res) => {
         if (err) console.error("Failed to delete local file:", err);
       });
     }
-
+    const receiverSocketId = getReceiverSocketId(receiverId);
+    if(receiverSocketId){
+      io.to(receiverSocketId).emit("newMessage",newMessage)
+    }
 
     return res.status(201).json(newMessage);
   } catch (error) {

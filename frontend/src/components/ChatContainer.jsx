@@ -7,14 +7,34 @@ import { useAuthStore } from "../store/authStore.js";
 import { formatMessageTime } from "../lib/utils";
 
 function ChatContainer() {
-  const { messages, getMessages, isMessagesLoading, selectedUser } = useChatStore();  
-  const {authUser} = useAuthStore()
+  const {
+    messages,
+    getMessages,
+    isMessagesLoading,
+    selectedUser,
+    subscribeTMessages,
+    unsubscribeFromMessages,
+  } = useChatStore();
+  const { authUser } = useAuthStore();
   const messageEndRef = useRef(null);
 
   useEffect(() => {
     getMessages(selectedUser._id);
-  }, [selectedUser._id]);
+    subscribeTMessages();
 
+    return () => unsubscribeFromMessages();
+  }, [
+    selectedUser._id,
+    getMessages,
+    subscribeTMessages,
+    unsubscribeFromMessages,
+  ]);
+
+  useEffect(() => {
+    if (messageEndRef.current && messages){
+      messageEndRef.current.scrollIntoView({ behvaior: "smooth" });}
+  }, [messages]);
+  
   if (isMessagesLoading) {
     return (
       <div className="flex flex-1 flex-col overflow-auto">
@@ -24,9 +44,8 @@ function ChatContainer() {
       </div>
     );
   }
-  console.log(selectedUser,"user")
-  console.log(messages, "msg");
 
+  console.log(messages,"messages")
   return (
     <div className="flex-1 flex flex-col overflow-auto">
       <ChatHeader />

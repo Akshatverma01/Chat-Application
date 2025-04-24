@@ -88,10 +88,13 @@ export const login = async (req, res) => {
       throw new ApiError(401, "Invalid password!");
     }
 
+    const userData = existedUser.toObject();
+    delete userData.password;
+
     await generateToken(existedUser._id, res);
-    res
-      .status(200)
-      .json({ data: existedUser, message: "User logged in successfully" });
+    res.status(200)
+      .json({ data: userData, message: "User logged in successfully" });
+      
   } catch (error) {
     return res.status(500).json({
       message: error.message || "Internal Server Error",

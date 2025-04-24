@@ -14,7 +14,7 @@ import { Loader } from "lucide-react";
 import { Toaster } from "react-hot-toast";
 
 function App() {
-  const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
+  const { authUser, checkAuth, isCheckingAuth,onlineUsers } = useAuthStore();
   const { theme } = useThemeStore();
 
   useEffect(() => {
@@ -28,7 +28,8 @@ function App() {
       </div>
     );
 
-  console.log(theme, "theeme");
+  console.log(authUser,"auth")
+  console.log(onlineUsers, "onlineUsers");
   return (
     <>
       <div data-theme={theme}>
@@ -40,7 +41,7 @@ function App() {
           />
           <Route
             path="/signUp"
-            element={!authUser ? <SignUpPage /> : <Navigate to="/" />}
+            element={authUser==null ? <SignUpPage /> : <Navigate to="/" />}
           />
           <Route
             path="/login"

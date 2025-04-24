@@ -15,7 +15,7 @@ function SideBar() {
     isUsersLooading,
   } = useChatStore();
 
-  const onlineUsers = [];
+  const {onlineUsers} = useAuthStore();
   const [showOnlineOnly, setShowOnlineOnly] = useState(false);
 
   useEffect(() => {
