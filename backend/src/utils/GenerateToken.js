@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import User from "../models/user.model.js";
-import ApiError from "./apiError.js";
+import ApiError from "./ApiError.js";
 
 export const generateToken = async (userId, res) => {
   try {
