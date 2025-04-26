@@ -15,6 +15,7 @@ dotenv.config();
 // Here, you can use either 'app' from socket.js or create a fresh one.
 // But for now, let's use socketApp
 const app = socketApp;
+const PORT = process.env.PORT || 5000;
 
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ limit: "10mb", extended: true }));
@@ -45,7 +46,9 @@ if (process.env.NODE_ENV === "production") {
 }
 
 connectDB();
-
+server.listen(PORT, () => {
+    console.log(`Server started on port ${PORT}`);
+});
 // DO NOT call server.listen() here!
 
 export default app;
